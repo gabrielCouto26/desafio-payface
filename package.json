@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.825.0",
-    "@nestjs-packages/sqs": "^1.0.2",
     "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",

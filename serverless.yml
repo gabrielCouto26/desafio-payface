@@ -15,9 +15,9 @@ provider:
     DB_NAME: ${env:DB_NAME}
 
 plugins:
+  - serverless-dotenv-plugin
   - serverless-plugin-typescript
   - serverless-offline
-  - serverless-dotenv-plugin
   - serverless-offline-sqs
 
 functions:
