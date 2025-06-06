@@ -1,55 +1,27 @@
+org: gabrielcouto26
+app: desafio-payface
 service: desafio-payface
 
-frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
 
 provider:
   name: aws
   runtime: nodejs18.x
   region: us-east-1
-  environment:
-    REDIS_URL: ${env:REDIS_URL}
-    DB_HOST: ${env:DB_HOST}
-    DB_PORT: ${env:DB_PORT}
-    DB_USERNAME: ${env:DB_USERNAME}
-    DB_PASSWORD: ${env:DB_PASSWORD}
-    DB_NAME: ${env:DB_NAME}
 
-plugins:
-  - serverless-dotenv-plugin
-  - serverless-plugin-typescript
-  - serverless-offline
-  - serverless-offline-sqs
+package:
+  individually: true
+
+build:
+  esbuild: false
 
 functions:
   sendMoney:
-    handler: src/wallet/wallet.controller.sendMoney
+    handler: src/main.handler
     events:
       - http:
-          path: wallet/send
+          path: /wallet/send
           method: post
 
-  processTransaction:
-    handler: src/transaction/transaction.consumer.process
-    events:
-      - sqs:
-          arn:
-            Fn::GetAtt: [TransactionQueue, Arn]
-
-  notifyUser:
-    handler: src/notification/notification.handler.handle
-    events:
-      - sns:
-          arn:
-            Ref: NotificationTopic
-
-resources:
-  Resources:
-    TransactionQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: transaction-queue
-
-    NotificationTopic:
-      Type: AWS::SNS::Topic
-      Properties:
-        TopicName: transaction-notification
