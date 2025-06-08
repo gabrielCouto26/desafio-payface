@@ -13,6 +13,8 @@ provider:
   environment:
     SQS_QUEUE_URL:
       Fn::GetAtt: [TransactionQueue, QueueUrl]
+    SNS_TOPIC_ARN:
+      Ref: SuccessNotificationTopic
   iam:
     role:
       statements:
@@ -25,6 +27,21 @@ provider:
           Resource:
             - Fn::GetAtt: [TransactionQueue, Arn]
             - Fn::GetAtt: [TransactionDLQ, Arn]
+        - Effect: Allow
+          Action:
+            - sns:Publish
+            - sns:Subscribe
+            - sns:Receive
+          Resource:
+            - Ref: SuccessNotificationTopic
+        - Effect: Allow
+          Action:
+            - sqs:SendMessage
+            - sqs:ReceiveMessage
+            - sqs:DeleteMessage
+            - sqs:GetQueueAttributes
+          Resource:
+            - Fn::GetAtt: [NotificationDLQ, Arn]
 
 package:
   individually: true
@@ -47,6 +64,15 @@ functions:
           arn:
             Fn::GetAtt: [TransactionQueue, Arn]
 
+  notification:
+    handler: src/lambda/sns.handler
+    events:
+      - sns:
+          arn:
+            Ref: SuccessNotificationTopic
+          topicName: success-notification-topic
+    onError: arn:aws:sqs:${self:provider.region}:${aws:accountId}:notification-dlq
+
 resources:
   Resources:
     TransactionDLQ:
@@ -62,3 +88,14 @@ resources:
           deadLetterTargetArn:
             Fn::GetAtt: [TransactionDLQ, Arn]
           maxReceiveCount: 2
+
+    NotificationDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: notification-dlq
+
+    SuccessNotificationTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: success-notification-topic
+        DisplayName: Success Notification Topic
