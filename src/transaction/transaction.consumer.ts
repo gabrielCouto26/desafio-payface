@@ -1,48 +1,45 @@
 import { Injectable } from '@nestjs/common';
-import {
-  SQSClient,
-  ReceiveMessageCommand,
-  DeleteMessageCommand,
-} from '@aws-sdk/client-sqs';
+import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
+
+interface TransactionMessage {
+  fromWalletId: number;
+  toWalletId: number;
+  amount: number;
+}
 
 @Injectable()
 export class TransactionConsumer {
-  private readonly sqsClient: SQSClient;
-  private readonly queueUrl: string;
+  private readonly snsClient: SNSClient;
+  private readonly topicArn: string;
 
   constructor() {
-    this.sqsClient = new SQSClient({
-      region: process.env.AWS_REGION || 'us-east-1',
+    const region = process.env.AWS_REGION || 'us-east-1';
+    this.snsClient = new SNSClient({
+      region,
     });
-    this.queueUrl = process.env.SQS_QUEUE_URL || '';
+    this.topicArn = process.env.SNS_TOPIC_ARN || '';
   }
 
-  async process() {
+  async process(message: TransactionMessage) {
     try {
-      const command = new ReceiveMessageCommand({
-        QueueUrl: this.queueUrl,
-        MaxNumberOfMessages: 1,
-      });
+      console.log('Processing transaction:', message);
 
-      const response = await this.sqsClient.send(command);
+      // TODO: Implement transaction processing logic
 
-      if (response.Messages && response.Messages.length > 0) {
-        const message = response.Messages[0];
-        const transaction = JSON.parse(message.Body || '{}');
-        console.log('Processing transaction:', transaction);
-
-        // TODO: Implement transaction processing logic
-
-        // Delete the message after processing
-        await this.sqsClient.send(
-          new DeleteMessageCommand({
-            QueueUrl: this.queueUrl,
-            ReceiptHandle: message.ReceiptHandle,
+      await this.snsClient.send(
+        new PublishCommand({
+          TopicArn: this.topicArn,
+          Message: JSON.stringify({
+            type: 'TRANSACTION_SUCCESS',
+            data: message,
+            timestamp: new Date().toISOString(),
           }),
-        );
+        }),
+      );
 
-        return { status: 'PROCESSED' };
-      }
+      console.log('Published success notification to SNS');
+
+      return { status: 'PROCESSED' };
     } catch (error) {
       console.error('Error processing message:', error);
       throw error;
