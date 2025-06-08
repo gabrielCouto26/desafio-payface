@@ -15,6 +15,16 @@ provider:
       Fn::GetAtt: [TransactionQueue, QueueUrl]
     SNS_TOPIC_ARN:
       Ref: SuccessNotificationTopic
+    DB_HOST:
+      Fn::GetAtt: [PostgresDB, Endpoint.Address]
+    DB_PORT: 5432
+    DB_NAME: payface
+    DB_USER: ${self:custom.dbUser}
+    DB_PASSWORD: ${self:custom.dbPassword}
+    REDIS_HOST:
+      Fn::GetAtt: [RedisCache, RedisEndpoint.Address]
+    REDIS_PORT:
+      Fn::GetAtt: [RedisCache, RedisEndpoint.Port]
   iam:
     role:
       statements:
@@ -42,6 +52,16 @@ provider:
             - sqs:GetQueueAttributes
           Resource:
             - Fn::GetAtt: [NotificationDLQ, Arn]
+        - Effect: Allow
+          Action:
+            - rds-db:connect
+          Resource:
+            - Fn::GetAtt: [PostgresDB, DBInstanceArn]
+        - Effect: Allow
+          Action:
+            - elasticache:DescribeReplicationGroups
+            - elasticache:DescribeCacheClusters
+          Resource: "*"
 
 package:
   individually: true
@@ -99,3 +119,50 @@ resources:
       Properties:
         TopicName: success-notification-topic
         DisplayName: Success Notification Topic
+
+    PostgresDB:
+      Type: AWS::RDS::DBInstance
+      Properties:
+        Engine: postgres
+        DBInstanceClass: db.t3.micro
+        AllocatedStorage: 20
+        MasterUsername: ${self:custom.dbUser}
+        MasterUserPassword: ${self:custom.dbPassword}
+        DBName: payface
+        PubliclyAccessible: true
+        VPCSecurityGroups:
+          - Fn::GetAtt: [PostgresSecurityGroup, GroupId]
+
+    PostgresSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Security group for RDS PostgreSQL
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 5432
+            ToPort: 5432
+            CidrIp: 0.0.0.0/0
+
+    RedisCache:
+      Type: AWS::ElastiCache::CacheCluster
+      Properties:
+        Engine: redis
+        CacheNodeType: cache.t3.micro
+        NumCacheNodes: 1
+        Port: 6379
+        VpcSecurityGroupIds:
+          - Fn::GetAtt: [RedisSecurityGroup, GroupId]
+
+    RedisSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Security group for Redis
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 6379
+            ToPort: 6379
+            CidrIp: 0.0.0.0/0
+
+custom:
+  dbUser: payface_admin
+  dbPassword: ${ssm:/payface/db/password}
