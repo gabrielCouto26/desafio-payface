@@ -28,7 +28,7 @@ export class TransactionConsumer {
 
       if (response.Messages && response.Messages.length > 0) {
         const message = response.Messages[0];
-        const transaction = JSON.parse(message.Body);
+        const transaction = JSON.parse(message.Body || '{}');
         console.log('Processing transaction:', transaction);
 
         // TODO: Implement transaction processing logic

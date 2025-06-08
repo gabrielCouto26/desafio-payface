@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TransactionConsumer } from './transaction.consumer';
+import { SqsLambdaHandler } from './transaction.handler';
 
 @Module({
-  providers: [TransactionConsumer],
+  providers: [TransactionConsumer, SqsLambdaHandler],
 })
-export class TransactionModule {} 
+export class TransactionModule {}

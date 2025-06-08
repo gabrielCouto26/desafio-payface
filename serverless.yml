@@ -10,6 +10,21 @@ provider:
   name: aws
   runtime: nodejs18.x
   region: us-east-1
+  environment:
+    SQS_QUEUE_URL:
+      Fn::GetAtt: [TransactionQueue, QueueUrl]
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - sqs:SendMessage
+            - sqs:ReceiveMessage
+            - sqs:DeleteMessage
+            - sqs:GetQueueAttributes
+          Resource:
+            - Fn::GetAtt: [TransactionQueue, Arn]
+            - Fn::GetAtt: [TransactionDLQ, Arn]
 
 package:
   individually: true
@@ -19,9 +34,31 @@ build:
 
 functions:
   sendMoney:
-    handler: src/main.handler
+    handler: src/lambda/http.handler
     events:
       - http:
           path: /wallet/send
           method: post
 
+  processTransaction:
+    handler: src/lambda/sqs.handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [TransactionQueue, Arn]
+
+resources:
+  Resources:
+    TransactionDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: transaction-dlq
+
+    TransactionQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: transaction-queue
+        RedrivePolicy:
+          deadLetterTargetArn:
+            Fn::GetAtt: [TransactionDLQ, Arn]
+          maxReceiveCount: 2
