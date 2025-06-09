@@ -1,5 +1,5 @@
 export class TransactionDto {
-  fromWalletId: number;
-  toWalletId: number;
+  fromWalletId: string;
+  toWalletId: string;
   amount: number;
 }

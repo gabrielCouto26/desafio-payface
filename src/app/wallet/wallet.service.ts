@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { TransactionDto } from '@core/wallet/dto/transaction.dto';
+import { TransactionDto } from '@core/transaction/dto/transaction.dto';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 
 @Injectable()

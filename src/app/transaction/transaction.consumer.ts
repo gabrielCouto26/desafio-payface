@@ -1,18 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
-
-interface TransactionMessage {
-  fromWalletId: number;
-  toWalletId: number;
-  amount: number;
-}
+import TransactionCore from '@core/transaction/transaction.core';
+import { TransactionDto } from '@core/transaction/dto/transaction.dto';
 
 @Injectable()
 export class TransactionConsumer {
   private readonly snsClient: SNSClient;
   private readonly topicArn: string;
 
-  constructor() {
+  constructor(
+    @Inject(TransactionCore) private readonly transaction: TransactionCore,
+  ) {
     const region = process.env.AWS_REGION || 'us-east-1';
     this.snsClient = new SNSClient({
       region,
@@ -20,11 +18,11 @@ export class TransactionConsumer {
     this.topicArn = process.env.SNS_TOPIC_ARN || '';
   }
 
-  async process(message: TransactionMessage) {
+  async process(message: TransactionDto) {
     try {
       console.log('Processing transaction:', message);
 
-      // TODO: Implement transaction processing logic
+      await this.transaction.execute(message);
 
       await this.snsClient.send(
         new PublishCommand({
