@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { Context, Handler, SNSEvent } from 'aws-lambda';
 import { INestApplicationContext } from '@nestjs/common';
-import { NotificationModule } from '../app/notification/notification.module';
-import { NotificationHandler } from '../app/notification/notification.handler';
+import { NotificationModule } from '@app/notification/notification.module';
+import { NotificationHandler } from '@app/notification/notification.handler';
 
 let cachedApp: INestApplicationContext;
 

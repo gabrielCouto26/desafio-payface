@@ -3,7 +3,7 @@ import { NotificationModule } from './app/notification/notification.module';
 import { TransactionModule } from './app/transaction/transaction.module';
 import { WalletModule } from './app/wallet/wallet.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppDataSource } from './database';
+import { AppDataSource } from './database/config';
 
 @Module({
   imports: [

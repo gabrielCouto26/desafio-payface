@@ -12,6 +12,11 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "module": "commonjs",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "@core/*": ["./src/core/*"],
+      "@app/*": ["./src/app/*"],
+      "@database/*": ["./src/database/*"],
+    }
   }
 }
