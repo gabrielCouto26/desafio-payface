@@ -16,7 +16,6 @@ export class TransactionHandler {
     for (const record of event.Records) {
       try {
         const message = JSON.parse(record.body);
-        console.log('Processing message:', message);
 
         await this.transactionConsumer.process(message);
       } catch (error) {

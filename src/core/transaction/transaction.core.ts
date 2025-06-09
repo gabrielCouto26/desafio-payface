@@ -23,26 +23,22 @@ export default class TransactionCore {
   ) {}
 
   async execute(transactionDto: TransactionDto) {
-    const [, error] = await this.checkWalletBalance(
-      transactionDto.fromWalletId,
-      transactionDto.amount,
+    const { fromWalletId, toWalletId, amount } = transactionDto;
+
+    const [sourceWallet, error] = await this.checkWalletBalance(
+      fromWalletId,
+      amount,
     );
 
     if (error) {
-      const failed = this.buildTransaction(
-        transactionDto,
-        TransactionStatus.FAILED,
-      );
-      await this.createTransaction(failed);
+      await this.createTransaction(transactionDto, TransactionStatus.FAILED);
       console.error(error);
       throw error;
     }
 
-    const success = this.buildTransaction(
-      transactionDto,
-      TransactionStatus.SUCCESS,
-    );
-    await this.createTransaction(success);
+    await this.decreaseWalletBalance(sourceWallet!, amount);
+    await this.increaseWalletBalance(toWalletId, amount);
+    await this.createTransaction(transactionDto, TransactionStatus.SUCCESS);
   }
 
   private async checkWalletBalance(
@@ -54,17 +50,42 @@ export default class TransactionCore {
     });
 
     if (!wallet) {
-      return [null, new NotFoundException('Wallet not found')];
+      return [null, new NotFoundException(`Wallet ${walletId} not found`)];
     }
 
     if (wallet.balance < amount) {
-      return [null, new BadRequestException('Insufficient balance')];
+      return [
+        null,
+        new BadRequestException(`Insufficient balance for wallet ${walletId}`),
+      ];
     }
 
     return [wallet, null];
   }
 
-  private async createTransaction(transaction: ProcessedTransaction) {
+  private async increaseWalletBalance(walletId: string, amount: number) {
+    const wallet = await this.walletRepository.findOne({
+      where: { id: walletId },
+    });
+
+    if (!wallet) {
+      throw new NotFoundException(`Wallet ${walletId} not found`);
+    }
+
+    wallet.balance = Number(wallet.balance) + amount;
+    await this.walletRepository.save(wallet);
+  }
+
+  private async decreaseWalletBalance(wallet: Wallet, amount: number) {
+    wallet.balance = Number(wallet.balance) - amount;
+    await this.walletRepository.save(wallet);
+  }
+
+  private async createTransaction(
+    transactionDto: TransactionDto,
+    status: TransactionStatus,
+  ) {
+    const transaction = this.buildTransaction(transactionDto, status);
     return this.transactionRepository.save(transaction);
   }
 
