@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TransactionConsumer } from './transaction.consumer';
 import { SqsLambdaHandler } from './transaction.handler';
-import { redisClientFactory } from '../database/redis';
+import { redisClientFactory } from '../../database/redis';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Transaction } from './entities/transaction.entity';
 

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { NotificationModule } from './notification/notification.module';
-import { TransactionModule } from './transaction/transaction.module';
-import { WalletModule } from './wallet/wallet.module';
+import { NotificationModule } from './app/notification/notification.module';
+import { TransactionModule } from './app/transaction/transaction.module';
+import { WalletModule } from './app/wallet/wallet.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppDataSource } from './database';
 

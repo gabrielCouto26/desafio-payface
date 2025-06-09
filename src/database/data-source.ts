@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { Transaction } from '../transaction/entities/transaction.entity';
-import { Wallet } from '../wallet/entities/wallet.entity';
+import { Transaction } from '../app/transaction/entities/transaction.entity';
+import { Wallet } from '../app/wallet/entities/wallet.entity';
 
 dotenv.config();
 
