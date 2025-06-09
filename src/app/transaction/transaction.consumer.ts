@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
-import TransactionCore from '@core/transaction/transaction.core';
-import { TransactionDto } from '@core/transaction/dto/transaction.dto';
+import TransactionCore from '../../core/transaction/transaction.core';
+import { TransactionDto } from '../../core/transaction/dto/transaction.dto';
 
 @Injectable()
 export class TransactionConsumer {

@@ -13,10 +13,5 @@
     "emitDecoratorMetadata": true,
     "module": "commonjs",
     "esModuleInterop": true,
-    "paths": {
-      "@core/*": ["./src/core/*"],
-      "@app/*": ["./src/app/*"],
-      "@database/*": ["./src/database/*"],
-    }
   }
 }

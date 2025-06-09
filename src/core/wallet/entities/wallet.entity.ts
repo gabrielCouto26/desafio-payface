@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { Transaction } from '@core/transaction/entities/transaction.entity';
+import { Transaction } from '../../transaction/entities/transaction.entity';
 
 @Entity('wallets')
 export class Wallet {

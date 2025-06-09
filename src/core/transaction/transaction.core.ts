@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
-import { Wallet } from '@core/wallet/entities/wallet.entity';
+import { Wallet } from '../wallet/entities/wallet.entity';
 import { TransactionDto } from './dto/transaction.dto';
 import {
   ProcessedTransaction,

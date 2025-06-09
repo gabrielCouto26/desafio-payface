@@ -6,7 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Wallet } from '@core/wallet/entities/wallet.entity';
+import { Wallet } from '../../wallet/entities/wallet.entity';
 
 @Entity('transactions')
 export class Transaction {
