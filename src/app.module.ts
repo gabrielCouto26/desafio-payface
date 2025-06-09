@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { NotificationModule } from './app/notification/notification.module';
 import { TransactionModule } from './app/transaction/transaction.module';
 import { WalletModule } from './app/wallet/wallet.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppDataSource } from './database/config';
+import { TransactionCoreModule } from './core/transaction/transaction.core.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { AppDataSource } from './database/config';
     NotificationModule,
     TransactionModule,
     WalletModule,
+    TransactionCoreModule,
   ],
 })
 export class AppModule {}

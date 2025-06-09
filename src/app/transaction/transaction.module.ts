@@ -2,11 +2,9 @@ import { Module } from '@nestjs/common';
 import { TransactionConsumer } from './transaction.consumer';
 import { TransactionHandler } from './transaction.handler';
 import { redisClientFactory } from '../../database/config/redis';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Transaction } from '../../core/transaction/entities/transaction.entity';
-
+import { TransactionCoreModule } from '../../core/transaction/transaction.core.module';
 @Module({
-  imports: [TypeOrmModule.forFeature([Transaction])],
+  imports: [TransactionCoreModule],
   providers: [TransactionConsumer, TransactionHandler, redisClientFactory],
 })
 export class TransactionModule {}

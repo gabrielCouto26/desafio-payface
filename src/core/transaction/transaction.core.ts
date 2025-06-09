@@ -3,20 +3,20 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { Transaction } from './entities/transaction.entity';
 import { Wallet } from '../wallet/entities/wallet.entity';
 import { TransactionDto } from './dto/transaction.dto';
 import {
   ProcessedTransaction,
   TransactionStatus,
 } from './transaction.interfaces';
+import TransactionRepository from '../../database/repositories/transaction.repository';
+import WalletRepository from '../../database/repositories/wallet.repository';
 
 @Injectable()
 export default class TransactionCore {
   constructor(
-    private readonly transactionRepository: Repository<Transaction>,
-    private readonly walletRepository: Repository<Wallet>,
+    private readonly transactionRepository: TransactionRepository,
+    private readonly walletRepository: WalletRepository,
   ) {}
 
   async execute(transactionDto: TransactionDto) {
