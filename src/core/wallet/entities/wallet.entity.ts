@@ -28,6 +28,6 @@ export class Wallet {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => Transaction, (transaction) => transaction.wallet)
+  @OneToMany(() => Transaction, (transaction) => transaction.fromWallet)
   transactions: Transaction[];
 }

@@ -13,10 +13,10 @@ export class Transaction {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'wallet_id', type: 'uuid' })
-  walletId: string;
+  @Column({ name: 'from_wallet_id', type: 'uuid' })
+  fromWalletId: string;
 
-  @Column({ name: 'from_wallet_id', type: 'uuid', nullable: true })
+  @Column({ name: 'to_wallet_id', type: 'uuid', nullable: true })
   toWalletId: string;
 
   @Column({ name: 'amount', type: 'decimal', precision: 10, scale: 2 })
@@ -28,11 +28,11 @@ export class Transaction {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @ManyToOne(() => Wallet, (wallet) => wallet.transactions)
-  @JoinColumn({ name: 'wallet_id' })
-  wallet: Wallet;
-
   @ManyToOne(() => Wallet)
   @JoinColumn({ name: 'from_wallet_id' })
+  fromWallet: Wallet;
+
+  @ManyToOne(() => Wallet)
+  @JoinColumn({ name: 'to_wallet_id' })
   toWallet: Wallet;
 }

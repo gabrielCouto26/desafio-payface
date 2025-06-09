@@ -5,7 +5,7 @@ export enum TransactionStatus {
 }
 
 export interface ProcessedTransaction {
-  walletId: string;
+  fromWalletId: string;
   toWalletId: string;
   amount: number;
   status: TransactionStatus;

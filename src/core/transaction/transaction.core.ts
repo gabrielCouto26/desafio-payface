@@ -73,7 +73,7 @@ export default class TransactionCore {
     status: TransactionStatus,
   ): ProcessedTransaction {
     return {
-      walletId: transactionDto.fromWalletId,
+      fromWalletId: transactionDto.fromWalletId,
       toWalletId: transactionDto.toWalletId,
       amount: transactionDto.amount,
       status,
