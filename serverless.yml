@@ -19,7 +19,7 @@ provider:
       Fn::GetAtt: [PostgresDB, Endpoint.Address]
     DB_PORT: 5432
     DB_NAME: payface
-    DB_USER: ${self:custom.dbUser}
+    DB_USERNAME: ${self:custom.dbUser}
     DB_PASSWORD: ${self:custom.dbPassword}
     REDIS_HOST:
       Fn::GetAtt: [RedisCache, RedisEndpoint.Address]
