@@ -3,7 +3,7 @@ import { Context, SQSEvent } from 'aws-lambda';
 import { TransactionConsumer } from './transaction.consumer';
 
 @Injectable()
-export class SqsLambdaHandler {
+export class TransactionHandler {
   constructor(private readonly transactionConsumer: TransactionConsumer) {}
 
   async handler(event: SQSEvent, context: Context) {
