@@ -9,14 +9,17 @@ import {
   ProcessedTransaction,
   TransactionStatus,
 } from './transaction.interfaces';
-import TransactionRepository from '../../database/repositories/transaction.repository';
-import WalletRepository from '../../database/repositories/wallet.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Transaction } from './entities/transaction.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export default class TransactionCore {
   constructor(
-    private readonly transactionRepository: TransactionRepository,
-    private readonly walletRepository: WalletRepository,
+    @InjectRepository(Transaction)
+    private readonly transactionRepository: Repository<Transaction>,
+    @InjectRepository(Wallet)
+    private readonly walletRepository: Repository<Wallet>,
   ) {}
 
   async execute(transactionDto: TransactionDto) {
