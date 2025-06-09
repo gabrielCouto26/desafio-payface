@@ -71,21 +71,21 @@ build:
 
 functions:
   sendMoney:
-    handler: src/lambda/http.handler
+    handler: src/lambda-adapters/http.handler
     events:
       - http:
           path: /wallet/send
           method: post
 
   processTransaction:
-    handler: src/lambda/sqs.handler
+    handler: src/lambda-adapters/sqs.handler
     events:
       - sqs:
           arn:
             Fn::GetAtt: [TransactionQueue, Arn]
 
   notification:
-    handler: src/lambda/sns.handler
+    handler: src/lambda-adapters/sns.handler
     events:
       - sns:
           arn:
