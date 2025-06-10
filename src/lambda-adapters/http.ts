@@ -4,13 +4,14 @@ import { createServer, proxy } from 'aws-serverless-express';
 import { eventContext } from 'aws-serverless-express/middleware';
 import express from 'express';
 import { ExpressAdapter } from '@nestjs/platform-express';
-
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../app.module';
+import { WalletModule } from '../app/wallet/wallet.module';
+import { INestApplication } from '@nestjs/common';
 
 const binaryMimeTypes: string[] = [];
 
 let cachedServer: Server;
+let cachedApp: INestApplication;
 
 process.on('unhandledRejection', (reason) => {
   console.error(reason);
@@ -24,12 +25,12 @@ async function bootstrapServer(): Promise<Server> {
   if (!cachedServer) {
     try {
       const expressApp = express();
-      const nestApp = await NestFactory.create(
-        AppModule,
+      cachedApp = await NestFactory.create(
+        WalletModule,
         new ExpressAdapter(expressApp),
       );
-      nestApp.use(eventContext());
-      await nestApp.init();
+      cachedApp.use(eventContext());
+      await cachedApp.init();
       cachedServer = createServer(expressApp, undefined, binaryMimeTypes);
     } catch (error) {
       return Promise.reject(error);
@@ -39,6 +40,17 @@ async function bootstrapServer(): Promise<Server> {
 }
 
 export const handler: Handler = async (event: any, context: Context) => {
-  cachedServer = await bootstrapServer();
-  return proxy(cachedServer, event, context, 'PROMISE').promise;
+  try {
+    cachedServer = await bootstrapServer();
+    const result = await proxy(cachedServer, event, context, 'PROMISE').promise;
+
+    if (cachedApp) {
+      await cachedApp.close();
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Error in Lambda handler:', error);
+    throw error;
+  }
 };

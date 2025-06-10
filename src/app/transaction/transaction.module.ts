@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TransactionConsumer } from './transaction.consumer';
 import { TransactionHandler } from './transaction.handler';
-import { redisClientFactory } from '../../database/config/redis';
 import { TransactionCoreModule } from '../../core/transaction/transaction.core.module';
+import { DatabaseModule } from '../../database/database.module';
+
 @Module({
-  imports: [TransactionCoreModule],
-  providers: [TransactionConsumer, TransactionHandler, redisClientFactory],
+  imports: [TransactionCoreModule, DatabaseModule],
+  providers: [TransactionConsumer, TransactionHandler],
 })
 export class TransactionModule {}
