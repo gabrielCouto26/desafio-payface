@@ -4,12 +4,11 @@ import { Redis } from 'ioredis';
 export const redisClientFactory: FactoryProvider<Redis> = {
   provide: 'RedisClient',
   useFactory: () => {
-    const redisInstance = new Redis({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379', 10),
-    });
+    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    const redisInstance = new Redis(redisUrl);
 
     redisInstance.on('error', (e) => {
+      console.error('Redis connection error:', e);
       throw new Error(`Redis connection failed: ${e}`);
     });
 

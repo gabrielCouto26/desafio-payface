@@ -21,10 +21,7 @@ provider:
     DB_NAME: payface
     DB_USERNAME: ${self:custom.dbUser}
     DB_PASSWORD: ${self:custom.dbPassword}
-    REDIS_HOST:
-      Fn::GetAtt: [RedisCache, RedisEndpoint.Address]
-    REDIS_PORT:
-      Fn::GetAtt: [RedisCache, RedisEndpoint.Port]
+    REDIS_URL: ${self:custom.redisUrl}
   iam:
     role:
       statements:
@@ -57,6 +54,12 @@ provider:
             - rds-db:connect
           Resource:
             - Fn::GetAtt: [PostgresDB, DBInstanceArn]
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+            - ssm:GetParameters
+          Resource:
+            - arn:aws:ssm:${self:provider.region}:${aws:accountId}:parameter/payface/redis/url
         - Effect: Allow
           Action:
             - elasticache:DescribeReplicationGroups
@@ -143,26 +146,7 @@ resources:
             ToPort: 5432
             CidrIp: 0.0.0.0/0
 
-    RedisCache:
-      Type: AWS::ElastiCache::CacheCluster
-      Properties:
-        Engine: redis
-        CacheNodeType: cache.t3.micro
-        NumCacheNodes: 1
-        Port: 6379
-        VpcSecurityGroupIds:
-          - Fn::GetAtt: [RedisSecurityGroup, GroupId]
-
-    RedisSecurityGroup:
-      Type: AWS::EC2::SecurityGroup
-      Properties:
-        GroupDescription: Security group for Redis
-        SecurityGroupIngress:
-          - IpProtocol: tcp
-            FromPort: 6379
-            ToPort: 6379
-            CidrIp: 0.0.0.0/0
-
 custom:
   dbUser: payface_admin
   dbPassword: ${ssm:/payface/db/password}
+  redisUrl: ${ssm:/payface/redis/url}
