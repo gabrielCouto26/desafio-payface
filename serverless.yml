@@ -10,6 +10,7 @@ provider:
   name: aws
   runtime: nodejs18.x
   region: us-east-1
+  stage: dev
   environment:
     SQS_QUEUE_URL:
       Fn::GetAtt: [TransactionQueue, QueueUrl]
@@ -68,6 +69,15 @@ provider:
             - elasticache:DescribeReplicationGroups
             - elasticache:DescribeCacheClusters
           Resource: "*"
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:ListBucket
+            - s3:DeleteObject
+          Resource:
+            - Fn::GetAtt: [WebsiteBucket, Arn]
+            - Fn::Join: ['', [Fn::GetAtt: [WebsiteBucket, Arn], '/*']]
 
 package:
   individually: true
@@ -82,11 +92,18 @@ functions:
       - http:
           path: /wallet/send
           method: post
+          cors: true
           request:
             schemas:
               application/json:
                 schema: ${file(schemas/send-money.json)}
             validator: body
+          response:
+            headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              Access-Control-Allow-Credentials: "'true'"
 
   processTransaction:
     handler: src/lambda-adapters/sqs.handler
@@ -106,6 +123,33 @@ functions:
 
 resources:
   Resources:
+    WebsiteBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:service}-${self:provider.stage}-website
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: index.html
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
+
+    WebsiteBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket:
+          Ref: WebsiteBucket
+        PolicyDocument:
+          Statement:
+            - Sid: PublicReadGetObject
+              Effect: Allow
+              Principal: '*'
+              Action: 's3:GetObject'
+              Resource:
+                Fn::Join: ['', ['arn:aws:s3:::', Ref: WebsiteBucket, '/*']]
+
     TransactionDLQ:
       Type: AWS::SQS::Queue
       Properties:

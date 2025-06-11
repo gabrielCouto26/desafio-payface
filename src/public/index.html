@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio Payface</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Carteira Digital</h1>
+        <form id="transactionForm">
+            <div class="form-group">
+                <label for="fromWalletId">Carteira de Origem:</label>
+                <input type="text" id="fromWalletId" name="fromWalletId" required>
+            </div>
+            <div class="form-group">
+                <label for="toWalletId">Carteira de Destino:</label>
+                <input type="text" id="toWalletId" name="toWalletId" required>
+            </div>
+            <div class="form-group">
+                <label for="amount">Valor:</label>
+                <input type="number" id="amount" name="amount" step="0.01" min="0.01" required>
+            </div>
+            <button type="submit">Transferir</button>
+        </form>
+        <div id="message" class="message"></div>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
