@@ -1,14 +1,7 @@
-interface NotificationMessage {
-  type: string;
-  data: NotificationData;
-  timestamp: string;
-}
-
-interface NotificationData {
-  fromWalletId: string;
-  toWalletId: string;
-  amount: number;
-}
+import { Inject } from '@nestjs/common';
+import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
+import { NotificationMessage } from '../../core/notification/notification.interface';
+import NotificationCore from '../../core/notification/notification.core';
 
 interface NotificationResult {
   status: 'NOTIFIED' | 'ERROR';
@@ -16,6 +9,16 @@ interface NotificationResult {
 }
 
 export class NotificationMessenger {
+  private snsClient: SNSClient;
+
+  constructor(
+    @Inject(NotificationCore) private notificationCore: NotificationCore,
+  ) {
+    this.snsClient = new SNSClient({
+      region: process.env.AWS_REGION || 'us-east-1',
+    });
+  }
+
   async send(message: NotificationMessage): Promise<NotificationResult> {
     try {
       switch (message.type) {
@@ -40,6 +43,20 @@ export class NotificationMessenger {
       amount: message.data.amount,
     });
 
-    // TODO: Implement notification delivery logic (email, SMS, etc.)
+    const notificationMessage = this.notificationCore.buildMessage(message);
+
+    try {
+      const emailCommand = new PublishCommand({
+        TopicArn: process.env.EMAIL_TOPIC_ARN,
+        Message: notificationMessage,
+        Subject: 'Transação bem sucedida',
+      });
+
+      await this.snsClient.send(emailCommand);
+      console.log('Email notification sent successfully');
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      throw new Error('Failed to send notification');
+    }
   }
 }
