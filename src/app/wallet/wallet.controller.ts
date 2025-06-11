@@ -1,6 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { WalletService } from './wallet.service';
 import { TransactionDto } from '../../core/transaction/dto/transaction.dto';
+import TransactionValidator from '../shared/transaction.validator';
 
 @Controller('wallet')
 export class WalletController {
@@ -8,7 +9,7 @@ export class WalletController {
 
   @Post('send')
   async sendMoney(@Body() event: TransactionDto) {
-    const { fromWalletId, toWalletId, amount } = event;
-    return this.walletService.sendMoney({ fromWalletId, toWalletId, amount });
+    TransactionValidator.validate(event);
+    return this.walletService.sendMoney(event);
   }
 }

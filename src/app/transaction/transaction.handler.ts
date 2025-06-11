@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Context, SQSEvent } from 'aws-lambda';
 import { TransactionConsumer } from './transaction.consumer';
+import TransactionValidator from '../shared/transaction.validator';
 
 @Injectable()
 export class TransactionHandler {
@@ -16,7 +17,7 @@ export class TransactionHandler {
     for (const record of event.Records) {
       try {
         const message = JSON.parse(record.body);
-
+        TransactionValidator.validate(message);
         await this.transactionConsumer.process(message);
       } catch (error) {
         console.error('Error processing message:', error);

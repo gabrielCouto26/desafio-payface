@@ -82,6 +82,11 @@ functions:
       - http:
           path: /wallet/send
           method: post
+          request:
+            schemas:
+              application/json:
+                schema: ${file(schemas/send-money.json)}
+            validator: body
 
   processTransaction:
     handler: src/lambda-adapters/sqs.handler
