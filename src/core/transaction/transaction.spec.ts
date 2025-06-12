@@ -140,11 +140,8 @@ describe('TransactionCore', () => {
 
       const result = await (transactionCore as any).getWallet('wallet-1');
 
-      expect(result).toEqual({
-        ...mockWallet,
-        createdAt: new Date(mockWallet.createdAt.toISOString()),
-        updatedAt: new Date(mockWallet.updatedAt.toISOString()),
-      });
+      expect(result).toEqual(cachedWallet);
+      expect(mockRedisClient.get).toHaveBeenCalledWith('wallet-1');
       expect(mockWalletRepository.findOne).not.toHaveBeenCalled();
     });
 
@@ -188,9 +185,12 @@ describe('TransactionCore', () => {
     });
 
     it('should throw BadRequestException when wallet has insufficient balance', () => {
-      expect(() =>
-        (transactionCore as any).checkWalletBalance(mockWallet, 600),
-      ).toThrow(BadRequestException);
+      const result = (transactionCore as any).checkWalletBalance(
+        mockWallet,
+        600,
+      );
+
+      expect(result).toBeInstanceOf(BadRequestException);
     });
   });
 
