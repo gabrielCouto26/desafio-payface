@@ -90,6 +90,7 @@ functions:
     handler: src/lambda-adapters/http.handler
     events:
       - http:
+          cors: true
           path: /wallet/send
           method: post
           request:
@@ -123,6 +124,15 @@ resources:
         WebsiteConfiguration:
           IndexDocument: index.html
           ErrorDocument: index.html
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - POST
+              AllowedOrigins:
+                - "*"
+              MaxAge: 300
         PublicAccessBlockConfiguration:
           BlockPublicAcls: false
           BlockPublicPolicy: false
