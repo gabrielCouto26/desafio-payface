@@ -73,7 +73,7 @@ export default class TransactionCore implements OnModuleDestroy {
 
   private checkWalletBalance(wallet: Wallet, amount: number): Error | null {
     if (wallet.balance < amount) {
-      throw new BadRequestException(
+      return new BadRequestException(
         `Insufficient balance for wallet ${wallet.id}`,
       );
     }
