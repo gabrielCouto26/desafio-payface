@@ -92,18 +92,11 @@ functions:
       - http:
           path: /wallet/send
           method: post
-          cors: true
           request:
             schemas:
               application/json:
                 schema: ${file(schemas/send-money.json)}
             validator: body
-          response:
-            headers:
-              Access-Control-Allow-Origin: "'*'"
-              Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-              Access-Control-Allow-Methods: "'POST,OPTIONS'"
-              Access-Control-Allow-Credentials: "'true'"
 
   processTransaction:
     handler: src/lambda-adapters/sqs.handler
